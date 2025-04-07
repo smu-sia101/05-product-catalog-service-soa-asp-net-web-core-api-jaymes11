@@ -43,9 +43,6 @@ function App() {
               </Route>
             </Routes>
           </Content>
-          <Footer style={{ textAlign: 'center' }}>
-            Product Catalog ©{new Date().getFullYear()} Created with Ant Design
-          </Footer>
         </Layout>
       </BrowserRouter>
     </AuthProvider>
