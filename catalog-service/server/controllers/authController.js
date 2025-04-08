@@ -1,5 +1,4 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 // Register a new user
@@ -22,23 +21,16 @@ exports.register = async (req, res) => {
 
     await user.save();
 
-    // Generate JWT
-    const payload = {
+    // Return user data
+    res.status(201).json({
+      success: true,
       user: {
         id: user.id,
+        username: user.username,
+        email: user.email,
         role: user.role
       }
-    };
-
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );
+    });
   } catch (error) {
     console.error('Error in register:', error.message);
     res.status(500).json({ message: 'Server error' });
@@ -62,31 +54,16 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT
-    const payload = {
+    // Return user data
+    res.json({
+      success: true,
       user: {
         id: user.id,
+        username: user.username,
+        email: user.email,
         role: user.role
       }
-    };
-
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ 
-          token,
-          user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            role: user.role
-          }
-        });
-      }
-    );
+    });
   } catch (error) {
     console.error('Error in login:', error.message);
     res.status(500).json({ message: 'Server error' });

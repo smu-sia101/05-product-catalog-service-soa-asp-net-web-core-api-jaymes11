@@ -5,26 +5,26 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [userId, setUserId] = useState(localStorage.getItem('userId'));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Set axios defaults when token changes
+  // Set axios defaults when userId changes
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['x-auth-token'] = token;
-      localStorage.setItem('token', token);
+    if (userId) {
+      axios.defaults.headers.common['x-user-id'] = userId;
+      localStorage.setItem('userId', userId);
     } else {
-      delete axios.defaults.headers.common['x-auth-token'];
-      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['x-user-id'];
+      localStorage.removeItem('userId');
     }
-  }, [token]);
+  }, [userId]);
 
-  // Load user info if token exists
+  // Load user info if userId exists
   useEffect(() => {
     const loadUser = async () => {
-      if (!token) {
+      if (!userId) {
         setLoading(false);
         return;
       }
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
       } catch (err) {
         console.error('Error loading user:', err.message);
-        setToken(null);
+        setUserId(null);
         setUser(null);
         setIsAuthenticated(false);
         setError('Authentication error');
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     loadUser();
-  }, [token]);
+  }, [userId]);
 
   // Register user
   const register = async (formData) => {
@@ -55,7 +55,9 @@ export const AuthProvider = ({ children }) => {
       
       const res = await axios.post('http://localhost:3000/api/auth/register', formData);
       
-      setToken(res.data.token);
+      setUserId(res.data.user.id);
+      setUser(res.data.user);
+      setIsAuthenticated(true);
       return true;
     } catch (err) {
       console.error('Register error:', err.response?.data?.message || err.message);
@@ -74,7 +76,7 @@ export const AuthProvider = ({ children }) => {
       
       const res = await axios.post('http://localhost:3000/api/auth/login', formData);
       
-      setToken(res.data.token);
+      setUserId(res.data.user.id);
       setUser(res.data.user);
       setIsAuthenticated(true);
       return true;
@@ -89,7 +91,7 @@ export const AuthProvider = ({ children }) => {
 
   // Logout
   const logout = () => {
-    setToken(null);
+    setUserId(null);
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -102,7 +104,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        token,
+        userId,
         user,
         isAuthenticated,
         loading,

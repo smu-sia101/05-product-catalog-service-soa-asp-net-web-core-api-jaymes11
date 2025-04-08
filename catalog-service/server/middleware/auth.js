@@ -1,22 +1,20 @@
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const auth = (req, res, next) => {
-  // Get token from header
-  const token = req.header('x-auth-token');
+  // Get user ID from header
+  const userId = req.header('x-user-id');
 
-  // Check if no token
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
+  // Check if no user ID
+  if (!userId) {
+    return res.status(401).json({ message: 'Not authenticated' });
   }
 
-  // Verify token
+  // Set user ID in request
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user;
+    req.user = { id: userId };
     next();
   } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
+    res.status(401).json({ message: 'Authentication failed' });
   }
 };
 
